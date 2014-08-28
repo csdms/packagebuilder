@@ -1,4 +1,4 @@
-rpmbuilder
+packagebuilder
 ==========
 
-Python package for building CSDMS models and tools into RPMs
+Python package for building CSDMS models and tools into RPMs and DEBs.
