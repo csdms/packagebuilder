@@ -9,9 +9,7 @@ def download(repo, dest="."):
     directory.
     '''
     url = "https://github.com/{0}/archive/master.zip".format(repo)
-    print(url)
-    local_file = os.path.join(dest, os.path.basename(url))
-    print(local_file)
+    local_file = os.path.join(dest, os.path.basename(repo) + ".zip")
     urllib.urlretrieve(url, local_file)
     return local_file
 
@@ -20,7 +18,6 @@ def unpack(file, dest="."):
     Unpacks a zip archive containing the contents of the repo to the 
     current directory.
     '''
-    print(file)
     zip = zipfile.ZipFile(file, mode='r')
     zip.extractall(dest)
     files = zip.namelist()
@@ -33,7 +30,6 @@ def main():
     try:
         zip_file = download(repo, dest=tmp_dir)
         unpack_dir = unpack(zip_file, dest=tmp_dir)
-        print(unpack_dir)
     except Exception:
         raise
     finally:

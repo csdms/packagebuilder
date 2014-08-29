@@ -20,13 +20,24 @@ from subprocess import call
 import string
 import glob
 import shlex
+from packager.core import repo_tools as repo
 
-class BuildModelRPM:
+class BuildRPM:
     '''
-    Calls the distro-specific tool to build an RPM for a model from
-    its source code.
+    Uses rpmbuild to build a CSDMS model or tool into an RPM.
     '''
-    def __init__(self, model_name, model_version):
+    def __init__(self, module_name, module_version):
+
+        # Get module setup files from GitHub.
+
+        dest_dir = os.mkdir("_tmp")
+        print(dest_dir)
+        return
+        models_zipfile = repo.download("csdms/rpm_models", dest_dir)
+        tools_zipfile = repo.download("csdms/rpm_tools", dest_dir)
+        models_dir = repo.unpack(models_zipfile, dest_dir) 
+        tools_dir = repo.unpack(tools_zipfile, dest_dir) 
+
 
         # Set up the local rpmbuild directory.
         self.rpmbuild = os.path.join(os.getenv("HOME"), "rpmbuild", "")
@@ -49,10 +60,6 @@ class BuildModelRPM:
         self.dependencies_file = self.model_dir + "dependencies.txt"
         self.source_file = self.model_dir + "source.txt"
         self.spec_file = self.model_dir + self.model + ".spec"
-
-        # Set up the rpmbuild directory.
-#        self.rpmbuild = os.getenv("HOME") + os.sep + "rpmbuild" + os.sep
-#        self.prep_directory()
 
         # Download the model's source code.
         self.get_source()
@@ -161,23 +168,22 @@ class BuildModelRPM:
 
 def main():
     '''
-    Accepts command-line arguments and passes them to an instance of
-    BuildModelRPM.
+    Accepts command-line arguments and passes them to an instance of BuildRPM.
     '''
     # Allow only Linuxen.
-    if not sys.platform.startswith('linux'):
-        print("Error: this OS is not supported.")
-        sys.exit(1) # not Linux
+    # if not sys.platform.startswith('linux'):
+    #     print("Error: this OS is not supported.")
+    #     sys.exit(1) # not Linux
 
-    # Which model is being built?
+    # What's being built?
     parser = argparse.ArgumentParser()
-    parser.add_argument("model",
-                        help="the name of the model to build")
+    parser.add_argument("module",
+                        help="the name of the model or tool to build")
     parser.add_argument("-t", "--tag",
-                        help="the tagged version of the model")
+                        help="the tagged version of the module")
     args = parser.parse_args()
 
-    BuildModelRPM(args.model, args.tag)
+    BuildRPM(args.module, args.tag)
 
 if __name__ == "__main__":
     main()
