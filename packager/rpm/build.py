@@ -27,6 +27,14 @@ class BuildModelRPM:
     its source code.
     '''
     def __init__(self, model_name, model_version):
+
+        # Set up the local rpmbuild directory.
+        self.rpmbuild = os.path.join(os.getenv("HOME"), "rpmbuild", "")
+        self.prep_directory()
+
+
+
+
         self.top_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
 
         if not os.path.isdir(self.top_dir + model_name):
@@ -43,8 +51,8 @@ class BuildModelRPM:
         self.spec_file = self.model_dir + self.model + ".spec"
 
         # Set up the rpmbuild directory.
-        self.rpmbuild = os.getenv("HOME") + os.sep + "rpmbuild" + os.sep
-        self.prep_directory()
+#        self.rpmbuild = os.getenv("HOME") + os.sep + "rpmbuild" + os.sep
+#        self.prep_directory()
 
         # Download the model's source code.
         self.get_source()
@@ -77,8 +85,8 @@ class BuildModelRPM:
             call(["rpmdev-wipetree"])
         else:
             call(["rpmdev-setuptree"])
-        self.sources_dir = self.rpmbuild + "SOURCES" + os.sep
-        self.specs_dir = self.rpmbuild + "SPECS" + os.sep
+        self.sources_dir = os.path.join(self.rpmbuild,  "SOURCES", "")
+        self.specs_dir = os.path.join(self.rpmbuild,  "SPECS", "")
 
     def get_source(self):
         '''
