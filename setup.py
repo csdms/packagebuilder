@@ -1,19 +1,26 @@
 from ez_setup import use_setuptools # https://pypi.python.org/pypi/setuptools
 use_setuptools()
 from setuptools import setup, find_packages
-from codecs import open
-from os import path
 
 # Get the long description from the README file.
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+def get_long_description():
+    from codecs import open
+    from os import path
+
+    here = path.abspath(path.dirname(__file__))
+    try:
+        with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+            long_description = f.read()
+    except:
+        return []
+    else:
+        return long_description
 
 setup(
     name='packagebuilder',
     version='0.1.0',
     description='Tools for building rpm and deb packages for CSDMS software',
-    long_description=long_description,
+    long_description=get_long_description(),
     url='https://github.com/csdms/packagebuilder',
     author='Mark Piper',
     author_email='mark.piper@colorado.edu',
