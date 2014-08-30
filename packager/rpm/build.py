@@ -16,6 +16,7 @@
 
 import sys, os, shutil
 import argparse
+import tempfile
 from subprocess import call
 import string
 import glob
@@ -28,43 +29,43 @@ class BuildRPM:
     '''
     def __init__(self, module_name, module_version):
 
-        # Get module setup files from GitHub.
+        # Get module setup files from GitHub and store in a tmp directory.
+        
+        self.tmpdir = tempfile.mkdtemp()
 
-        dest_dir = os.mkdir("_tmp")
-        print(dest_dir)
-        return
-        models_zipfile = repo.download("csdms/rpm_models", dest_dir)
-        tools_zipfile = repo.download("csdms/rpm_tools", dest_dir)
-        models_dir = repo.unpack(models_zipfile, dest_dir) 
-        tools_dir = repo.unpack(tools_zipfile, dest_dir) 
+        # XXX Ugly
+        models_zipfile = repo.download("csdms/rpm_models", self.tmpdir)
+        tools_zipfile = repo.download("csdms/rpm_tools", self.tmpdir)
+        models_dir = repo.unpack(models_zipfile, self.tmpdir) 
+        tools_dir = repo.unpack(tools_zipfile, self.tmpdir) 
 
+        # XXX Ugly
+        tmp1 = os.path.join(models_dir, module_name, "")
+        tmp2 = os.path.join(tools_dir, module_name, "")
+        if os.path.isdir(tmp1):
+            self.module_dir = tmp1
+        elif os.path.isdir(tmp2):
+            self.module_dir = tmp2
+        else:
+            print("The module '" + module_name + "' cannot be located.")
+            sys.exit(3) # can't find module
+
+        self.module = module_name
+        self.version = "head" if module_version == None else module_version
+
+        # Model setup files.
+        self.deps_file = os.path.join(self.module_dir, "dependencies.txt")
+        self.source_file = os.path.join(self.module_dir, "source.txt")
+        self.spec_file = os.path.join(self.module_dir, self.module + ".spec")
 
         # Set up the local rpmbuild directory.
         self.rpmbuild = os.path.join(os.getenv("HOME"), "rpmbuild", "")
         self.prep_directory()
 
-
-
-
-        self.top_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep
-
-        if not os.path.isdir(self.top_dir + model_name):
-            print("The model '" + model_name + "' cannot be located.")
-            sys.exit(3) # can't find model
-
-        self.model = model_name            
-        self.version = "head" if model_version == None else model_version
-
-        # Model directory and setup files.
-        self.model_dir = self.top_dir + self.model + os.sep
-        self.dependencies_file = self.model_dir + "dependencies.txt"
-        self.source_file = self.model_dir + "source.txt"
-        self.spec_file = self.model_dir + self.model + ".spec"
-
-        # Download the model's source code.
+        # Download the module's source code.
         self.get_source()
 
-        # Make a tarball from the model's source.
+        # Make a tarball from the module's source.
         self.make_tarball()
 
         # Apply patches, if any.
@@ -74,6 +75,7 @@ class BuildRPM:
         self.debian_check()
         self.get_dependencies()
         self.build()
+        self.cleanup()
         print("Success!")
 
     def debian_check(self):
@@ -84,8 +86,8 @@ class BuildRPM:
 
     def prep_directory(self):
         '''
-        Prepares the RPM build directory with built-in RPM dev tools.
-        Sets up member variables for paths in the build directory.
+        Prepares the RPM build directory (~/rpmbuild) with built-in RPM dev
+        tools. Sets up member variables for paths in the build directory.
         '''
         print("Setting up rpmbuild directory structure.")
         if os.path.isdir(self.rpmbuild):
@@ -97,21 +99,21 @@ class BuildRPM:
 
     def get_source(self):
         '''
-        Retrieves the model source from an external repository.
+        Retrieves the module source from an external repository.
         '''
-        print("Getting " + self.model + " source.")
-        self.source_target = self.sources_dir + self.model + "-" + self.version
+        print("Getting " + self.module + " source.")
+        self.source_target = self.sources_dir + self.module + "-" + self.version
         with open(self.source_file, "r") as f:
             cmd = f.readline().strip()
         cmd += " " + self.source_target
         ret = call(cmd, shell=True)
         if ret != 0:
-            print("Unable to download model source.")
+            print("Unable to download module source.")
             sys.exit(4) # can't access source
 
     def make_tarball(self):
         '''
-        Makes a tarball (required by rpmbuild) from the model source.
+        Makes a tarball (required by rpmbuild) from the module source.
         '''
         print("Making tarball.")
         shutil.make_archive(self.source_target, 'gztar', self.sources_dir, \
@@ -124,7 +126,7 @@ class BuildRPM:
         Patches must use the extension ".patch".
         '''
         print("Applying patches.")
-        for patch in glob.glob(self.model_dir + "*.patch"):
+        for patch in glob.glob(self.module_dir + "*.patch"):
             shutil.copy(patch, self.sources_dir)
 
     def read(self, fname):
@@ -139,12 +141,12 @@ class BuildRPM:
 
     def get_dependencies(self):
         '''
-        Assembles the list of dependencies for the model.
+        Assembles the list of dependencies for the module.
         '''
-        if not os.path.isfile(self.dependencies_file):
+        if not os.path.isfile(self.deps_file):
             self.dependencies = "rpm" # XXX workaround; how to specify null?
         else:
-            deps = self.read(self.dependencies_file)
+            deps = self.read(self.deps_file)
             self.dependencies = string.join(deps, ", ")
 
     def build(self):
@@ -154,16 +156,23 @@ class BuildRPM:
         print("Building RPMs.")
         shutil.copy(self.spec_file, self.specs_dir)
         cmd = "rpmbuild -ba --quiet " \
-            + self.specs_dir + os.path.basename(self.spec_file) \
+            + os.path.join(self.specs_dir, os.path.basename(self.spec_file)) \
             + " --define '_version " + self.version + "'"
         if not self.is_debian:
             cmd += " --define '_buildrequires " + self.dependencies + "'"
         print(cmd)
         ret = call(shlex.split(cmd))
         if ret != 0:
-            print("Error in building model RPM.")
+            print("Error in building module RPM.")
             sys.exit(2) # can't build RPM
 
+    def cleanup(self):
+        '''
+        Deletes the directory used to store the downloaded archives from
+        the rpm_models and rpm_tools repos.
+        '''
+        shutil.rmtree(self.tmpdir)
+    
 #-----------------------------------------------------------------------------
 
 def main():
