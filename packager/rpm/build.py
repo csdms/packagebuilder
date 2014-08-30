@@ -26,29 +26,12 @@ class BuildRPM:
     '''
     def __init__(self, module_name, module_version):
 
-        # Get module setup files from GitHub and store in a tmp directory.
-        
-        self.tmpdir = tempfile.mkdtemp()
-
-        # XXX Ugly
-        models_zipfile = repo.download("csdms/rpm_models", self.tmpdir)
-        tools_zipfile = repo.download("csdms/rpm_tools", self.tmpdir)
-        models_dir = repo.unpack(models_zipfile, self.tmpdir) 
-        tools_dir = repo.unpack(tools_zipfile, self.tmpdir) 
-
-        # XXX Ugly
-        tmp1 = os.path.join(models_dir, module_name, "")
-        tmp2 = os.path.join(tools_dir, module_name, "")
-        if os.path.isdir(tmp1):
-            self.module_dir = tmp1
-        elif os.path.isdir(tmp2):
-            self.module_dir = tmp2
-        else:
-            print("The module '" + module_name + "' cannot be located.")
-            sys.exit(3) # can't find module
-
         self.module = module_name
         self.version = "head" if module_version == None else module_version
+
+        # Get module setup files from GitHub and store in a tmp directory.
+        self.tmpdir = tempfile.mkdtemp()
+        self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
 
         # Model setup files.
         self.deps_file = os.path.join(self.module_dir, "dependencies.txt")
