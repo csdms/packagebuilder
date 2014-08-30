@@ -31,13 +31,16 @@ setup(
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
-    ],
+        ],
     keywords='CSDMS, earth system modeling, packaging, Linux, rpm, deb',
     packages=find_packages(exclude='test*'),
     install_requires=['nose'],
+    package_data={
+        'packager.data': ['repositories.txt'],
+        },
     entry_points={
         'console_scripts': [
             'build_rpm = packager.rpm.build:main',
-        ],
-    },
-)
+            ],
+        },
+    )

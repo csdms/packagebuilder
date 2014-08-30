@@ -1,0 +1,4 @@
+# Look in these repositories for modules
+csdms/rpm_models
+csdms/rpm_tools
+
