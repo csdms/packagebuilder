@@ -25,13 +25,15 @@ class BuildRPM:
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
     def __init__(self, module_name, module_version):
-
         self.module = module_name
         self.version = "head" if module_version == None else module_version
 
         # Get module setup files from GitHub and store in a tmp directory.
         self.tmpdir = tempfile.mkdtemp()
         self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
+        if self.module_dir == None:
+            print("The module '" + self.module + "' cannot be located.")
+            sys.exit(3) # can't find module
 
         # Model setup files.
         self.deps_file = os.path.join(self.module_dir, "dependencies.txt")
@@ -54,7 +56,7 @@ class BuildRPM:
         # Build the binary and source RPMs.
         self.is_debian = debian_check()
         self.get_dependencies()
-        self.build()
+        # self.build()
         self.cleanup()
         print("Success!")
 
