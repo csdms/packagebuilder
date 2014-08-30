@@ -22,6 +22,7 @@ import string
 import glob
 import shlex
 from packager.core import repo_tools as repo
+from packager.core.flavor import debian_check
 
 class BuildRPM:
     '''
@@ -72,17 +73,11 @@ class BuildRPM:
         self.patch()
 
         # Build the binary and source RPMs.
-        self.debian_check()
+        self.is_debian = debian_check()
         self.get_dependencies()
         self.build()
         self.cleanup()
         print("Success!")
-
-    def debian_check(self):
-        ''' 
-        True if this is a Debian-based Linux system.
-        '''
-        self.is_debian = (call(["test", "-f", "/etc/debian_version"]) == 0)
 
     def prep_directory(self):
         '''
