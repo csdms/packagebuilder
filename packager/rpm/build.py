@@ -103,16 +103,6 @@ class BuildRPM:
         for patch in glob.glob(self.module_dir + "*.patch"):
             shutil.copy(patch, self.sources_dir)
 
-    def read(self, fname):
-        '''
-        Reads a list of items, as strings, from a text file.
-        '''
-        with open(fname, "r") as f:
-            items = f.read().split("\n")
-        items.pop(0) # remove first and
-        items.pop()  # last items from list
-        return items
-
     def get_dependencies(self):
         '''
         Assembles the list of dependencies for the module. These are passed
@@ -121,7 +111,7 @@ class BuildRPM:
         if not os.path.isfile(self.deps_file):
             self.dependencies = "rpm" # XXX workaround; how to specify null?
         else:
-            deps = self.read(self.deps_file)
+            deps = repo.read(self.deps_file)
             self.dependencies = string.join(deps, ", ")
 
     def build(self):

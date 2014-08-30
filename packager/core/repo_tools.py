@@ -25,6 +25,16 @@ def unpack(file, dest="."):
     prefix = os.path.commonprefix(files)
     return os.path.join(dest, prefix)
 
+def read(fname):
+    '''
+    Reads a list of items, as strings, from a text file.
+    '''
+    with open(fname, "r") as f:
+        items = f.read().split("\n")
+    items.pop(0) # remove first and
+    items.pop()  # last items from list
+    return items
+
 def get_module(module_name, dest="."):
     '''
     Given the name of a model or tool, ...
