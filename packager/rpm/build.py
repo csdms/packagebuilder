@@ -1,32 +1,28 @@
 #! /usr/bin/python
 #
-# Builds binary and source RPMs for a model in the CSDMS repository.
+# Builds binary and source RPMs for a CSDMS model or tool.
 #
-# Arguments:
-#   the model name (required)
-#   -t is the tagged model version (optional)
-#   -h shows the help message
-#
-# Usage:
+# Examples:
 #   $ python build_rpm.py --help
 #   $ python build_rpm.py hydrotrend
+#   $ python build_rpm.py babel
 #   $ python build_rpm.py cem --tag 0.2
 #
 # Mark Piper (mark.piper@colorado.edu)
 
 import sys, os, shutil
 import argparse
-import tempfile
 from subprocess import call
 import string
 import glob
 import shlex
+import tempfile
 from packager.core import repo_tools as repo
 from packager.core.flavor import debian_check
 
 class BuildRPM:
     '''
-    Uses rpmbuild to build a CSDMS model or tool into an RPM.
+    Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
     def __init__(self, module_name, module_version):
 
@@ -108,7 +104,7 @@ class BuildRPM:
 
     def make_tarball(self):
         '''
-        Makes a tarball (required by rpmbuild) from the module source.
+        Makes a tarball (required by `rpmbuild`) from the module source.
         '''
         print("Making tarball.")
         shutil.make_archive(self.source_target, 'gztar', self.sources_dir, \
@@ -136,7 +132,8 @@ class BuildRPM:
 
     def get_dependencies(self):
         '''
-        Assembles the list of dependencies for the module.
+        Assembles the list of dependencies for the module. These are passed
+        into the BuildRequires tag of the module spec file by `rpmbuild`.
         '''
         if not os.path.isfile(self.deps_file):
             self.dependencies = "rpm" # XXX workaround; how to specify null?
@@ -146,7 +143,7 @@ class BuildRPM:
 
     def build(self):
         '''
-        Build binary and source RPMS.
+        Builds binary and source RPMS for the module.
         '''
         print("Building RPMs.")
         shutil.copy(self.spec_file, self.specs_dir)
@@ -175,9 +172,9 @@ def main():
     Accepts command-line arguments and passes them to an instance of BuildRPM.
     '''
     # Allow only Linuxen.
-    # if not sys.platform.startswith('linux'):
-    #     print("Error: this OS is not supported.")
-    #     sys.exit(1) # not Linux
+    if not sys.platform.startswith('linux'):
+        print("Error: this OS is not supported.")
+        sys.exit(1) # not Linux
 
     # What's being built?
     parser = argparse.ArgumentParser()
@@ -186,7 +183,6 @@ def main():
     parser.add_argument("-t", "--tag",
                         help="the tagged version of the module")
     args = parser.parse_args()
-
     BuildRPM(args.module, args.tag)
 
 if __name__ == "__main__":
