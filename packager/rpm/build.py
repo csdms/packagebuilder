@@ -24,13 +24,17 @@ class BuildRPM:
     '''
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
-    def __init__(self, module_name, module_version):
+    def __init__(self, module_name, module_version, local_dir):
         self.module = module_name
         self.version = "head" if module_version == None else module_version
 
-        # Get module setup files from GitHub and store in a tmp directory.
-        self.tmpdir = tempfile.mkdtemp()
-        self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
+        # Get module setup files from GitHub and store in a tmp directory,
+        # or from a local directory.
+        if local_dir == None:
+            self.tmpdir = tempfile.mkdtemp()
+            self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
+        else:
+            self.module_dir = local_dir
         if self.module_dir == None:
             print("The module '" + self.module + "' cannot be located.")
             sys.exit(3) # can't find module
@@ -165,8 +169,10 @@ def main():
                         help="the name of the model or tool to build")
     parser.add_argument("-t", "--tag",
                         help="the tagged version of the module")
+    parser.add_argument("-L", "--local",
+                        help="a local directory containing module files")
     args = parser.parse_args()
-    BuildRPM(args.module, args.tag)
+    BuildRPM(args.module, args.tag, args.local)
 
 if __name__ == "__main__":
     main()
