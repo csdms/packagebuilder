@@ -28,8 +28,8 @@ class BuildRPM:
         self.module = module_name
         self.version = "head" if module_version == None else module_version
 
-        # Get module setup files from GitHub and store in a tmp directory,
-        # or from a local directory.
+        # Get module setup files 1) from GitHub and store in a tmp directory,
+        # or 2) from a local directory.
         if local_dir == None:
             self.tmpdir = tempfile.mkdtemp()
             self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
@@ -150,8 +150,9 @@ class BuildRPM:
         Deletes the directory used to store the downloaded archives from
         the rpm_models and rpm_tools repos.
         '''
-        shutil.rmtree(self.tmpdir)
-    
+        if hasattr(self, "tmpdir") and os.path.isdir(self.tmpdir): 
+            shutil.rmtree(self.tmpdir)
+
 #-----------------------------------------------------------------------------
 
 def main():
