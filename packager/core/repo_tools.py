@@ -6,8 +6,8 @@ import tempfile
 
 def download(repo, dest="."):
     '''
-    Downloads a zip archive of the given repository to the current 
-    directory.
+    Downloads a zip archive of the given repository to the specified 
+    (default is current) directory.
     '''
     url = "https://github.com/{0}/archive/master.zip".format(repo)
     local_file = os.path.join(dest, os.path.basename(repo) + ".zip")
@@ -16,8 +16,8 @@ def download(repo, dest="."):
 
 def unpack(file, dest="."):
     '''
-    Unpacks a zip archive containing the contents of the repo to the 
-    current directory.
+    Unpacks a zip archive containing the contents of the repo to the
+    specified (default is current) directory. 
     '''
     zip = zipfile.ZipFile(file, mode='r')
     zip.extractall(dest)

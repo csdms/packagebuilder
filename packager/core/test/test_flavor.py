@@ -6,4 +6,4 @@ from subprocess import call
 
 def test_debian_check():
     ret = call(["test", "-f", "/etc/debian_version"]) == 0
-    assert debian_check() == ret
+    assert_equal(debian_check(), ret)
