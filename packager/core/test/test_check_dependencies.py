@@ -1,18 +1,18 @@
 #! /usr/bin/python
 
-from check_dependencies import CheckDependencies
+#from check_dependencies import CheckDependencies
 
-def test_default():
-    CheckDependencies(None)
+#def test_default():
+#    CheckDependencies(None)
 
-def test_hydrotrend():
-    CheckDependencies("hydrotrend")
+#def test_hydrotrend():
+#    CheckDependencies("hydrotrend")
 
-def test_cem():
-    CheckDependencies("cem")
+#def test_cem():
+#    CheckDependencies("cem")
 
-def test_child():
-    CheckDependencies("child")
+#def test_child():
+#    CheckDependencies("child")
 
-def test_child():
-    CheckDependencies("sedflux")
+#def test_child():
+#    CheckDependencies("sedflux")
