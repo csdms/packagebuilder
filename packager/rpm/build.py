@@ -44,11 +44,9 @@ class BuildRPM:
         self.rpmbuild = os.path.join(os.getenv("HOME"), "rpmbuild", "")
         self.prep_directory()
 
-        # Download the module's source code.
+        # Download the module's source code. Make a tarball.
         self.get_source()
-
-        # Make a tarball from the module's source.
-        self.make_tarball()
+        if self.needs_tarball: self.make_tarball()
 
         # Apply patches, if any.
         self.patch()
@@ -56,7 +54,7 @@ class BuildRPM:
         # Build the binary and source RPMs.
         self.is_debian = debian_check()
         self.get_dependencies()
-        # self.build()
+        self.build()
         self.cleanup()
         print("Success!")
 
@@ -78,9 +76,19 @@ class BuildRPM:
         Retrieves the module source from an external repository.
         '''
         print("Getting " + self.module + " source.")
-        self.source_target = self.sources_dir + self.module + "-" + self.version
         with open(self.source_file, "r") as f:
             cmd = f.readline().strip()
+
+        # Fragile. This needs improvement.
+        getter = cmd.split()[0]
+        if getter == "wget":
+            self.source_target = "-P" + self.sources_dir
+            self.needs_tarball = False
+        else:
+            self.source_target = self.sources_dir \
+                + self.module + "-" + self.version
+            self.needs_tarball = True
+
         cmd += " " + self.source_target
         ret = call(cmd, shell=True)
         if ret != 0:
