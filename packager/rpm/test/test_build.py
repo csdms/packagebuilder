@@ -29,5 +29,8 @@ def test_cem_version_head():
 def test_child_version_head():
     BuildRPM("child", "head")
 
-def test_child_version_head():
+def test_sedflux_version_head():
     BuildRPM("sedflux", "head")
+
+def test_adi2d_version_head():
+    BuildRPM("adi-2d", "head")
