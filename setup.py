@@ -36,7 +36,7 @@ setup(
     packages=find_packages(),
     install_requires=['nose'],
     package_data={
-        'packager.data': ['repositories.txt'],
+        'packager': ['repositories.txt'],
         },
     entry_points={
         'console_scripts': [

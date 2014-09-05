@@ -41,8 +41,8 @@ def get_module(module_name, dest="."):
     containing the setup files for the given module. If found, the directory
     path is returned.
     '''
-    data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-    repo_file = os.path.join(data_dir, "repositories.txt")
+    repo_file = os.path.join(os.path.dirname(__file__), \
+                                 "..", "repositories.txt")
     repos = read(repo_file)
     for r in repos:
         zip_file = download(r, dest)
