@@ -113,7 +113,7 @@ class BuildRPM:
         Patches must use the extension ".patch".
         '''
         print("Applying patches.")
-        for patch in glob.glob(self.module_dir + "*.patch"):
+        for patch in glob.glob(os.path.join(self.module_dir, "*.patch")):
             shutil.copy(patch, self.sources_dir)
 
     def get_dependencies(self):
