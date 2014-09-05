@@ -33,14 +33,14 @@ setup(
         'Programming Language :: Python :: 2.7',
         ],
     keywords='CSDMS, earth system modeling, packaging, Linux, rpm, deb',
-    packages=find_packages(exclude='test*'),
+    packages=find_packages(),
     install_requires=['nose'],
     package_data={
         'packager.data': ['repositories.txt'],
         },
     entry_points={
         'console_scripts': [
-            'build_rpm = packager.rpm.build:main',
+            'build_rpm=packager.rpm.build:main',
             ],
         },
     )

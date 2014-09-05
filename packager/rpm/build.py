@@ -1,17 +1,16 @@
-#! /usr/bin/python
+#! /usr/bin/env python
 #
 # Builds binary and source RPMs for a CSDMS model or tool.
 #
 # Examples:
-#   $ python build_rpm.py --help
-#   $ python build_rpm.py hydrotrend
-#   $ python build_rpm.py babel
-#   $ python build_rpm.py cem --tag 0.2
+#   $ python build.py --help
+#   $ python build.py hydrotrend
+#   $ python build.py babel
+#   $ python build.py cem --tag 0.2
 #
 # Mark Piper (mark.piper@colorado.edu)
 
 import sys, os, shutil
-import argparse
 from subprocess import call
 import string
 import glob
@@ -159,6 +158,8 @@ def main():
     '''
     Accepts command-line arguments and passes them to an instance of BuildRPM.
     '''
+    import argparse
+
     # Allow only Linuxen.
     if not sys.platform.startswith('linux'):
         print("Error: this OS is not supported.")
