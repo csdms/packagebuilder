@@ -33,7 +33,7 @@ class BuildRPM:
             self.tmpdir = tempfile.mkdtemp()
             self.module_dir = repo.get_module(self.module, dest=self.tmpdir)
         else:
-            self.module_dir = local_dir
+            self.module_dir = self.get_local_dir(local_dir)
         if self.module_dir == None:
             print("The module '" + self.module + "' cannot be located.")
             sys.exit(3) # can't find module
@@ -60,6 +60,18 @@ class BuildRPM:
         self.build()
         self.cleanup()
         print("Success!")
+
+    def get_local_dir(self, locdir):
+        '''
+        Checks that the directory path passed with "--local" is valid.
+        '''
+        if os.path.basename(os.path.normpath(locdir)) == self.module:
+            return locdir
+        elif os.path.isdir(os.path.join(locdir, self.module)):
+            return os.path.join(locdir, self.module)
+        else:
+            print("The specified \"--local\" directory cannot be found.")
+            sys.exit(5) # local directory doesn't exist
 
     def prep_directory(self):
         '''
