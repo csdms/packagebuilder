@@ -26,6 +26,7 @@ class BuildRPM:
     def __init__(self, module_name, module_version, local_dir):
         self.module = module_name
         self.version = "head" if module_version == None else module_version
+        self.install_prefix = "/usr/local/csdms"
 
         # Get module setup files 1) from GitHub and store in a tmp directory,
         # or 2) from a local directory.
@@ -147,6 +148,7 @@ class BuildRPM:
         shutil.copy(self.spec_file, self.specs_dir)
         cmd = "rpmbuild -ba --quiet " \
             + os.path.join(self.specs_dir, os.path.basename(self.spec_file)) \
+            + " --define '_prefix " + self.install_prefix + "'" \
             + " --define '_version " + self.version + "'"
         if not self.is_debian:
             cmd += " --define '_buildrequires " + self.dependencies + "'"
