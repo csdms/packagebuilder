@@ -7,6 +7,8 @@
 #   $ python build.py hydrotrend
 #   $ python build.py babel
 #   $ python build.py cem --tag 0.2
+#   $ python build.py hydrotrend --local $HOME/rpm_models
+#   $ python build.py babel --prefix /usr/local/csdms
 #
 # Mark Piper (mark.piper@colorado.edu)
 
@@ -23,10 +25,10 @@ class BuildRPM:
     '''
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
-    def __init__(self, module_name, module_version, local_dir):
+    def __init__(self, module_name, module_version, local_dir, prefix):
         self.module = module_name
         self.version = "head" if module_version == None else module_version
-        self.install_prefix = "/usr/local/csdms"
+        self.install_prefix = "/usr/local" if prefix == None else prefix
 
         # Get module setup files 1) from GitHub and store in a tmp directory,
         # or 2) from a local directory.
@@ -179,16 +181,18 @@ def main():
         print("Error: this OS is not supported.")
         sys.exit(1) # not Linux
 
-    # What's being built?
     parser = argparse.ArgumentParser()
     parser.add_argument("module",
                         help="the name of the model or tool to build")
-    parser.add_argument("-t", "--tag",
-                        help="the tagged version of the module")
-    parser.add_argument("-L", "--local",
-                        help="a local directory containing module files")
+    parser.add_argument("--tag",
+                        help="build TAG version of the module [head]")
+    parser.add_argument("--local",
+                        help="use LOCAL path to the module files")
+    parser.add_argument("--prefix",
+                        help="use PREFIX as install path for RPM [/usr/local]")
     args = parser.parse_args()
-    BuildRPM(args.module, args.tag, args.local)
+
+    BuildRPM(args.module, args.tag, args.local, args.prefix)
 
 if __name__ == "__main__":
     main()
