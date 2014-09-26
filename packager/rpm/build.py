@@ -197,7 +197,7 @@ def main():
                         version='build_rpm ' + __version__)
     args = parser.parse_args()
 
-    BuildRPM(args.module, args.tag, args.local, args.prefix)
+    BuildRPM(args.module_name, args.tag, args.local, args.prefix)
 
 if __name__ == "__main__":
     main()
