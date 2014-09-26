@@ -1,6 +1,7 @@
 from ez_setup import use_setuptools # https://pypi.python.org/pypi/setuptools
 use_setuptools()
 from setuptools import setup, find_packages
+from packager import __version__
 
 # Get the long description from the README file.
 def get_long_description():
@@ -18,7 +19,7 @@ def get_long_description():
 
 setup(
     name='packagebuilder',
-    version='0.1.0',
+    version=__version__,
     description='Tools for building rpm and deb packages for CSDMS software',
     long_description=get_long_description(),
     url='https://github.com/csdms/packagebuilder',

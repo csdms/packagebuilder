@@ -4,6 +4,7 @@
 #
 # Examples:
 #   $ python build.py --help
+#   $ python build.py --version
 #   $ python build.py hydrotrend
 #   $ python build.py babel
 #   $ python build.py cem --tag 0.2
@@ -175,21 +176,25 @@ def main():
     Accepts command-line arguments and passes them to an instance of BuildRPM.
     '''
     import argparse
+    from packager import __version__
 
     # Allow only Linuxen.
     if not sys.platform.startswith('linux'):
         print("Error: this OS is not supported.")
         sys.exit(1) # not Linux
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("module",
+    parser = argparse.ArgumentParser(
+        description="Builds a CSDMS model or tool into an RPM.")
+    parser.add_argument("module_name",
                         help="the name of the model or tool to build")
-    parser.add_argument("--tag",
-                        help="build TAG version of the module [head]")
     parser.add_argument("--local",
                         help="use LOCAL path to the module files")
     parser.add_argument("--prefix",
                         help="use PREFIX as install path for RPM [/usr/local]")
+    parser.add_argument("--tag",
+                        help="build TAG version of the module [head]")
+    parser.add_argument('--version', action='version', 
+                        version='build_rpm ' + __version__)
     args = parser.parse_args()
 
     BuildRPM(args.module, args.tag, args.local, args.prefix)
