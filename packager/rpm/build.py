@@ -25,24 +25,29 @@ class BuildRPM:
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
     def __init__(self, module_name, module_version, local_dir, prefix):
+        self.install_prefix = "/usr/local" if prefix == None else prefix
+        self.is_debian = debian_check()
 
-        self.m = Module(module_name, module_version, local_dir)
-        self.spec_file = os.path.join(self.m.module_dir, self.m.name + ".spec")
+        # Get the model or tool and its spec file.
+        self.module = Module(module_name, module_version, local_dir)
+        self.spec_file = os.path.join(self.module.location, \
+                                          self.module.name + ".spec")
 
         # Set up the local rpmbuild directory.
         self.rpmbuild = os.path.join(os.getenv("HOME"), "rpmbuild", "")
         self.prep_directory()
 
-        # Download the module's source code. Make a tarball.
-        self.m.get_source(self.sources_dir)
-        if self.m.needs_tarball: self.m.make_tarball()
+        # Download the module's source code and make a tarball.
+        self.tarball = self.module.get_source()
+        # self.module.get_source(self.sources_dir)
+        # if self.module.needs_tarball: self.module.make_tarball()
 
-        # Apply patches, if any.
+        # Copy module files to the rpmbuild directory and apply patches, if any.
+        shutil.copy(self.spec_file, self.specs_dir)
+        shutil.copy(self.tarball, self.sources_dir)
         self.patch()
 
         # Build the binary and source RPMs.
-        self.install_prefix = "/usr/local" if prefix == None else prefix
-        self.is_debian = debian_check()
         self.build()
         self.cleanup()
         print("Success!")
@@ -66,7 +71,7 @@ class BuildRPM:
         Patches must use the extension ".patch".
         '''
         print("Applying patches.")
-        for patch in glob.glob(os.path.join(self.m.module_dir, "*.patch")):
+        for patch in glob.glob(os.path.join(self.module.location, "*.patch")):
             shutil.copy(patch, self.sources_dir)
 
     def build(self):
@@ -74,13 +79,12 @@ class BuildRPM:
         Builds binary and source RPMS for the module.
         '''
         print("Building RPMs.")
-        shutil.copy(self.spec_file, self.specs_dir)
         cmd = "rpmbuild -ba --quiet " \
             + os.path.join(self.specs_dir, os.path.basename(self.spec_file)) \
             + " --define '_prefix " + self.install_prefix + "'" \
-            + " --define '_version " + self.m.version + "'"
+            + " --define '_version " + self.module.version + "'"
         if not self.is_debian:
-            cmd += " --define '_buildrequires " + self.m.dependencies + "'"
+            cmd += " --define '_buildrequires " + self.module.dependencies + "'"
         print(cmd)
         ret = call(shlex.split(cmd))
         if ret != 0:
@@ -92,7 +96,7 @@ class BuildRPM:
         Deletes the directory used to store the downloaded archives from
         the rpm_models and rpm_tools repos.
         '''
-        self.m.cleanup()
+        self.module.cleanup()
 
 #-----------------------------------------------------------------------------
 
