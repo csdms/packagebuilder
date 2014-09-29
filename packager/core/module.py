@@ -23,18 +23,19 @@ class Module(object):
         # or 2) from a local directory.
         if local_dir == None:
             self.tmpdir = tempfile.mkdtemp()
-            self._module_dir = repo.get_module(self._name, dest=self.tmpdir)
+            self._location = repo.get_module(self._name, dest=self.tmpdir)
         else:
-            self._module_dir = self.get_local_dir(local_dir)
-        if self._module_dir == None:
+            self._location = self.get_local_dir(local_dir)
+        if self._location == None:
             print("The module '" + self._name + "' cannot be located.")
+            self.cleanup()
             sys.exit(1) # can't find module
 
-        # Model setup files.
-        self.deps_file = os.path.join(self._module_dir, "dependencies.txt")
-        self.source_file = os.path.join(self._module_dir, "source.txt")
+        # Paths to module setup files.
+        self.deps_file = os.path.join(self._location, "dependencies.txt")
+        self.source_file = os.path.join(self._location, "source.txt")
 
-        self._dependencies = None
+        # Get module dependencies.
         self.get_dependencies()
 
     @property
@@ -52,11 +53,11 @@ class Module(object):
         return self._version
 
     @property
-    def module_dir(self):
+    def location(self):
         '''
         The directory holding the module setup files.
         '''
-        return self._module_dir
+        return self._location
 
     @property
     def dependencies(self):
@@ -68,6 +69,7 @@ class Module(object):
     def get_local_dir(self, locdir):
         '''
         Checks that the directory path passed with "--local" is valid.
+        Returns the directory path, or None if invalid.
         '''
         explocdir = os.path.expanduser(locdir)
         explocdir = os.path.expandvars(explocdir)
@@ -78,17 +80,16 @@ class Module(object):
             return os.path.join(explocdir, self._name)
         else:
             print("The specified \"--local\" directory cannot be found.")
-            sys.exit(2) # local directory doesn't exist
 
     def get_dependencies(self):
         '''
         Assembles the list of dependencies for the module.
         '''
-        if not os.path.isfile(self.deps_file):
-            self._dependencies = "rpm" # XXX workaround; how to specify null?
-        else:
+        if os.path.isfile(self.deps_file):
             deps = repo.read(self.deps_file)
             self._dependencies = string.join(deps, ", ")
+        else:
+            self._dependencies = "rpm" # XXX workaround
 
     def get_source(self, target_dir):
         '''
