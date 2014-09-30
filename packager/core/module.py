@@ -91,39 +91,58 @@ class Module(object):
         else:
             self._dependencies = "rpm" # XXX workaround
 
-    def get_source(self, target_dir):
+    def get_source(self, debug=False):
         '''
-        Retrieves the module source from an external repository.
+        Retrieves the module source from an external repository, and, if
+        needed, makes a tarball from the source. The path to the tarball
+        is returned. If the tarball is already present, immediately return
+        the path to the tarball.
         '''
+        if self.is_tarball_present():
+            print("Source tarball for " + self._name + " is present.")
+            return self.tarball
+        
         print("Getting " + self._name + " source.")
         with open(self.source_file, "r") as f:
             cmd = f.readline().strip()
-
-        self.target_dir = target_dir
-
+        
         # Fragile. This needs improvement.
         getter = cmd.split()[0]
         if getter == "wget":
-            self.source_target = "-P" + self.target_dir
-            self.needs_tarball = False
+            self.source_target = "-N -O" + self.tarball
         else:
-            self.source_target = self.target_dir \
-                + self._name + "-" + self._version
-            self.needs_tarball = True
+            self.source_target = \
+                os.path.join(self._location, self._name + "-" + self._version)
 
         cmd += " " + self.source_target
+        if debug: print(cmd)
         ret = call(cmd, shell=True)
         if ret != 0:
             print("Unable to download module source.")
-            sys.exit(4) # can't access source
+            sys.exit(2) # can't access source
+
+        if os.path.isdir(self.source_target):
+            self.make_tarball()
+
+        if debug: print(self.tarball)
+        return self.tarball
+
+    def is_tarball_present(self):
+        '''
+        Returns True if the source tarball is present.
+        '''
+        self.tarball = os.path.join( \
+            self._location, self._name + "-" + self._version + ".tar.gz")
+        return os.path.isfile(self.tarball)
 
     def make_tarball(self):
         '''
-        Makes a tarball (required by `rpmbuild`) from the module source.
+        Makes a tarball from the module source.
         '''
         print("Making tarball.")
-        shutil.make_archive(self.source_target, 'gztar', self.target_dir, \
-                            os.path.basename(self.source_target))
+        self.tarball = shutil.make_archive(self.source_target, 'gztar', \
+                                           self._location, \
+                                           os.path.basename(self.source_target))
         shutil.rmtree(self.source_target)
 
     def cleanup(self):
