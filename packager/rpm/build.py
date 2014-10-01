@@ -24,8 +24,9 @@ class BuildRPM:
     '''
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
-    def __init__(self, name, version, local_dir, prefix="/usr/local"):
+    def __init__(self, name, version, local_dir, prefix):
         self.is_debian = debian_check()
+        self.install_prefix = "/usr/local" if prefix == None else prefix
 
         # Get the model or tool and its spec file.
         self.module = Module(name, version, local_dir)
