@@ -15,9 +15,9 @@ class Module(object):
     '''
     Represents a CSDMS model or tool.
     '''
-    def __init__(self, module_name, module_version, local_dir):
+    def __init__(self, module_name, module_version="head", local_dir):
         self._name = module_name
-        self._version = "head" if module_version == None else module_version
+        self._version = module_version
 
         # Get module setup files 1) from GitHub and store in a tmp directory,
         # or 2) from a local directory.
