@@ -2,14 +2,18 @@
 #
 # Builds binary and source RPMs for a CSDMS model or tool.
 #
+# Create the executable script `build_rpm` with:
+#   $ cd path/to/packagebuilder
+#   $ sudo python setup.py install
+#
 # Examples:
-#   $ python build.py --help
-#   $ python build.py --version
-#   $ python build.py hydrotrend
-#   $ python build.py babel
-#   $ python build.py cem --tag 0.2
-#   $ python build.py hydrotrend --local $HOME/rpm_models
-#   $ python build.py babel --prefix /usr/local/csdms
+#   $ build_rpm --help
+#   $ build_rpm --version
+#   $ build_rpm hydrotrend
+#   $ build_rpm babel --tag 1.4.0
+#   $ build_rpm cem --tag 0.2 --quiet
+#   $ build_rpm hydrotrend --local $HOME/rpm_models
+#   $ build_rpm babel --prefix /usr/local/csdms
 #
 # Mark Piper (mark.piper@colorado.edu)
 
@@ -62,20 +66,11 @@ class BuildRPM:
         self.sources_dir = os.path.join(self.rpmbuild,  "SOURCES", "")
         self.specs_dir = os.path.join(self.rpmbuild,  "SPECS", "")
 
-    def patch(self):
-        '''
-        Locates and includes patches (if any) for the build process. 
-        Patches must use the extension ".patch".
-        '''
-        print("Applying patches.")
-        for patch in glob.glob(os.path.join(self.module.location, "*.patch")):
-            shutil.copy(patch, self.sources_dir)
-
     def prep_files(self):
         '''
         Copies source tarball, spec file, patches (if any) and scripts
         (if any) for the build process.  Patches must use the
-        extension ".patch"; scripts must use the extension ".sh".
+        extension ".patch", scripts must use the extension ".sh".
         '''
         print("Copying module files.")
         shutil.copy(self.spec_file, self.specs_dir)
