@@ -24,8 +24,9 @@ class BuildRPM:
     '''
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
-    def __init__(self, name, version, local_dir, prefix):
+    def __init__(self, name, version, local_dir, prefix, quiet):
         self.is_debian = debian_check()
+        self.is_quiet = " --quiet " if quiet else " "
         self.install_prefix = "/usr/local" if prefix == None else prefix
 
         # Get the model or tool and its spec file.
@@ -89,7 +90,7 @@ class BuildRPM:
         Builds binary and source RPMS for the module.
         '''
         print("Building RPMs.")
-        cmd = "rpmbuild -ba --quiet " \
+        cmd = "rpmbuild -ba" + self.is_quiet \
             + os.path.join(self.specs_dir, os.path.basename(self.spec_file)) \
             + " --define '_prefix " + self.install_prefix + "'" \
             + " --define '_version " + self.module.version + "'"
@@ -132,11 +133,13 @@ def main():
                         help="use PREFIX as install path for RPM [/usr/local]")
     parser.add_argument("--tag",
                         help="build TAG version of the module [head]")
+    parser.add_argument("--quiet", action="store_true",
+                        help="provide less detailed output [verbose]")
     parser.add_argument('--version', action='version', 
                         version='build_rpm ' + __version__)
     args = parser.parse_args()
 
-    BuildRPM(args.module_name, args.tag, args.local, args.prefix)
+    BuildRPM(args.module_name, args.tag, args.local, args.prefix, args.quiet)
 
 if __name__ == "__main__":
     main()
