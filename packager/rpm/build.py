@@ -40,10 +40,8 @@ class BuildRPM:
         # Download the module's source code and make a tarball.
         self.tarball = self.module.get_source()
 
-        # Copy module files to the rpmbuild directory and apply patches, if any.
-        shutil.copy(self.spec_file, self.specs_dir)
-        shutil.copy(self.tarball, self.sources_dir)
-        self.patch()
+        # Copy module files to the rpmbuild directory.
+        self.prep_files()
 
         # Build the binary and source RPMs.
         self.build()
@@ -71,6 +69,20 @@ class BuildRPM:
         print("Applying patches.")
         for patch in glob.glob(os.path.join(self.module.location, "*.patch")):
             shutil.copy(patch, self.sources_dir)
+
+    def prep_files(self):
+        '''
+        Copies source tarball, spec file, patches (if any) and scripts
+        (if any) for the build process.  Patches must use the
+        extension ".patch"; scripts must use the extension ".sh".
+        '''
+        print("Copying module files.")
+        shutil.copy(self.spec_file, self.specs_dir)
+        shutil.copy(self.tarball, self.sources_dir)
+        for patch in glob.glob(os.path.join(self.module.location, "*.patch")):
+            shutil.copy(patch, self.sources_dir)
+        for script in glob.glob(os.path.join(self.module.location, "*.sh")):
+            shutil.copy(script, self.sources_dir)
 
     def build(self):
         '''
