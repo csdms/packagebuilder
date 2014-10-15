@@ -69,8 +69,8 @@ class BuildRPM:
     def prep_files(self):
         '''
         Copies source tarball, spec file, patches (if any) and scripts
-        (if any) for the build process.  Patches must use the
-        extension ".patch", scripts must use the extension ".sh".
+        (if any) for the build process.  Patches must use the extension 
+        ".patch", scripts must use the extension ".sh" or ".py".
         '''
         print("Copying module files.")
         shutil.copy(self.spec_file, self.specs_dir)
@@ -78,6 +78,8 @@ class BuildRPM:
         for patch in glob.glob(os.path.join(self.module.location, "*.patch")):
             shutil.copy(patch, self.sources_dir)
         for script in glob.glob(os.path.join(self.module.location, "*.sh")):
+            shutil.copy(script, self.sources_dir)
+        for script in glob.glob(os.path.join(self.module.location, "*.py")):
             shutil.copy(script, self.sources_dir)
 
     def build(self):
