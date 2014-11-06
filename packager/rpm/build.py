@@ -55,14 +55,15 @@ class BuildRPM:
 
     def prep_directory(self):
         '''
-        Prepares the RPM build directory (~/rpmbuild) with built-in RPM dev
-        tools. Sets up member variables for paths in the build directory.
+        Prepares the RPM build directory `~/rpmbuild`. Sets up member
+        variables for paths in the build directory.
         '''
         print("Setting up rpmbuild directory structure.")
         if os.path.isdir(self.rpmbuild):
-            call(["rpmdev-wipetree"])
-        else:
-            call(["rpmdev-setuptree"])
+            shutil.rmtree(self.rpmbuild)
+        subdirectories = ["BUILD","BUILDROOT","RPMS","SOURCES","SPECS","SRPMS"]
+        for dir in subdirectories:
+            os.makedirs(os.path.join(self.rpmbuild, dir))
         self.sources_dir = os.path.join(self.rpmbuild,  "SOURCES", "")
         self.specs_dir = os.path.join(self.rpmbuild,  "SPECS", "")
 
