@@ -34,7 +34,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         ],
     keywords='CSDMS, earth system modeling, packaging, Linux, rpm, deb',
-    packages=find_packages(),
+    packages=find_packages(exclude=['*test']),
     install_requires=['nose'],
     package_data={
         'packager': ['repositories.txt'],
