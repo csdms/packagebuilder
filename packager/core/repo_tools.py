@@ -1,5 +1,5 @@
-import sys
-import os, shutil
+import os
+import shutil
 import urllib
 import zipfile
 import tempfile
@@ -14,14 +14,14 @@ def download(repo, dest="."):
     urllib.urlretrieve(url, local_file)
     return local_file
 
-def unpack(file, dest="."):
+def unpack(fname, dest="."):
     '''
     Unpacks a zip archive containing the contents of the repo to the
     specified (default is current) directory. 
     '''
-    zip = zipfile.ZipFile(file, mode='r')
-    zip.extractall(dest)
-    files = zip.namelist()
+    z = zipfile.ZipFile(fname, mode='r')
+    z.extractall(dest)
+    files = z.namelist()
     prefix = os.path.commonprefix(files)
     return os.path.join(dest, prefix)
 
@@ -57,7 +57,7 @@ def main():
     tmp_dir = tempfile.mkdtemp(prefix=main.__module__)
     try:
         zip_file = download(repo, dest=tmp_dir)
-        unpack_dir = unpack(zip_file, dest=tmp_dir)
+        unpack(zip_file, dest=tmp_dir)
     except Exception:
         raise
     finally:

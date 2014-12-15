@@ -17,16 +17,16 @@ class Module(object):
     '''
     def __init__(self, module_name, module_version, local_dir):
         self._name = module_name
-        self._version = "head" if module_version == None else module_version
+        self._version = "head" if module_version is None else module_version
 
         # Get module setup files 1) from GitHub and store in a tmp directory,
         # or 2) from a local directory.
-        if local_dir == None:
+        if local_dir is None:
             self.tmpdir = tempfile.mkdtemp()
             self._location = repo.get_module(self._name, dest=self.tmpdir)
         else:
             self._location = self.get_local_dir(local_dir)
-        if self._location == None:
+        if self._location is None:
             print("The module '" + self._name + "' cannot be located.")
             self.cleanup()
             sys.exit(1) # can't find module

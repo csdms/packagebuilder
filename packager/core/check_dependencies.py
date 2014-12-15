@@ -36,7 +36,7 @@ class CheckDependencies:
         self.dependencies = self.read(self.dependencies_file)
 
         # Read additional dependencies for the requested model.
-        if (self.model_name != None) and not self.is_debian:
+        if (self.model_name is not None) and not self.is_debian:
             self.model_dependencies_file = self.dirname \
                                            + "/" + self.model_name \
                                            + "/dependencies.txt"

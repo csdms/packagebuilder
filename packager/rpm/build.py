@@ -31,7 +31,7 @@ class BuildRPM:
     def __init__(self, name, version, local_dir, prefix, quiet):
         self.is_debian = debian_check()
         self.is_quiet = " --quiet " if quiet else " "
-        self.install_prefix = "/usr/local" if prefix == None else prefix
+        self.install_prefix = "/usr/local" if prefix is None else prefix
 
         # Get the model or tool and its spec file.
         self.module = Module(name, version, local_dir)
