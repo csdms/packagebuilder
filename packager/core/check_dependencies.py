@@ -14,7 +14,7 @@ import os.path
 from subprocess import call
 import argparse
 
-class CheckDependencies:
+class CheckDependencies(object):
     '''
     Checks the dependencies for building an RPM for a given model.
     '''

@@ -24,7 +24,7 @@ import shlex
 from packager.core.module import Module
 from packager.core.flavor import debian_check
 
-class BuildRPM:
+class BuildRPM(object):
     '''
     Uses `rpmbuild` to build a CSDMS model or tool into an RPM.
     '''
@@ -62,8 +62,8 @@ class BuildRPM:
         if os.path.isdir(self.rpmbuild):
             shutil.rmtree(self.rpmbuild)
         subdirectories = ["BUILD","BUILDROOT","RPMS","SOURCES","SPECS","SRPMS"]
-        for dir in subdirectories:
-            os.makedirs(os.path.join(self.rpmbuild, dir))
+        for dname in subdirectories:
+            os.makedirs(os.path.join(self.rpmbuild, dname))
         self.sources_dir = os.path.join(self.rpmbuild,  "SOURCES", "")
         self.specs_dir = os.path.join(self.rpmbuild,  "SPECS", "")
 
