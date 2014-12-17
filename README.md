@@ -1,4 +1,5 @@
-packagebuilder
-==========
+[![Build Status](https://travis-ci.org/csdms/packagebuilder.svg?branch=master)](https://travis-ci.org/csdms/packagebuilder)
 
-Python package for building CSDMS models and tools into RPMs and DEBs.
+# packagebuilder
+
+A Python package for building CSDMS models and tools into RPMs and DEBs.
